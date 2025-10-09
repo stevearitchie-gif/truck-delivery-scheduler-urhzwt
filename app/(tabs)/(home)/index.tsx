@@ -7,6 +7,7 @@ import { useTheme } from "@react-navigation/native";
 import { colors, commonStyles } from "@/styles/commonStyles";
 import DeliveryCard, { Delivery } from "@/components/DeliveryCard";
 import DeliveryDetailsModal from "@/components/DeliveryDetailsModal";
+import AddDeliveryModal from "@/components/AddDeliveryModal";
 
 // Mock data for deliveries
 const mockDeliveries: Delivery[] = [
@@ -71,6 +72,7 @@ export default function HomeScreen() {
   const theme = useTheme();
   const [deliveries, setDeliveries] = useState<Delivery[]>(mockDeliveries);
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
+  const [showAddDeliveryModal, setShowAddDeliveryModal] = useState(false);
 
   useEffect(() => {
     console.log('HomeScreen mounted');
@@ -90,6 +92,21 @@ export default function HomeScreen() {
     setSelectedDelivery(null);
   };
 
+  const handleAddDelivery = (newDeliveryData: Omit<Delivery, 'id'>) => {
+    console.log('Adding new delivery:', newDeliveryData);
+    
+    // Generate a unique ID (in a real app, this would come from your backend)
+    const newId = (Math.max(...deliveries.map(d => parseInt(d.id))) + 1).toString();
+    
+    const newDelivery: Delivery = {
+      ...newDeliveryData,
+      id: newId,
+    };
+
+    setDeliveries(prev => [...prev, newDelivery]);
+    console.log('New delivery added successfully:', newDelivery);
+  };
+
   const handleDeliveryPress = (delivery: Delivery) => {
     console.log('Delivery pressed:', delivery.id, delivery.customerName);
     setSelectedDelivery(delivery);
@@ -99,7 +116,7 @@ export default function HomeScreen() {
     <Pressable
       onPress={() => {
         console.log('Add delivery button pressed');
-        Alert.alert("Add Delivery", "This feature will allow dispatchers to add new deliveries");
+        setShowAddDeliveryModal(true);
       }}
       style={styles.headerButtonContainer}
     >
@@ -187,6 +204,31 @@ export default function HomeScreen() {
             </>
           )}
 
+          {/* Quick Stats */}
+          <View style={[commonStyles.card, styles.statsCard]}>
+            <Text style={[commonStyles.subtitle, { marginBottom: 16 }]}>
+              Delivery Statistics
+            </Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{deliveries.length}</Text>
+                <Text style={commonStyles.textSecondary}>Total</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>
+                  {deliveries.filter(d => d.status === 'scheduled').length}
+                </Text>
+                <Text style={commonStyles.textSecondary}>Scheduled</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>
+                  {deliveries.filter(d => d.status === 'delivered').length}
+                </Text>
+                <Text style={commonStyles.textSecondary}>Delivered</Text>
+              </View>
+            </View>
+          </View>
+
           {/* Maps Notice */}
           <View style={[commonStyles.card, styles.noticeCard]}>
             <IconSymbol name="info.circle" color={colors.accent} size={24} />
@@ -212,6 +254,9 @@ export default function HomeScreen() {
               • Modal state: {selectedDelivery ? 'Open' : 'Closed'}
             </Text>
             <Text style={commonStyles.textSecondary}>
+              • Add delivery modal: {showAddDeliveryModal ? 'Open' : 'Closed'}
+            </Text>
+            <Text style={commonStyles.textSecondary}>
               • Platform: {Platform.OS}
             </Text>
           </View>
@@ -221,10 +266,20 @@ export default function HomeScreen() {
         <DeliveryDetailsModal
           delivery={selectedDelivery}
           onClose={() => {
-            console.log('Modal closed');
+            console.log('Details modal closed');
             setSelectedDelivery(null);
           }}
           onUpdateStatus={updateDeliveryStatus}
+        />
+
+        {/* Add Delivery Modal */}
+        <AddDeliveryModal
+          visible={showAddDeliveryModal}
+          onClose={() => {
+            console.log('Add delivery modal closed');
+            setShowAddDeliveryModal(false);
+          }}
+          onAddDelivery={handleAddDelivery}
         />
       </View>
     </>
@@ -251,5 +306,21 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: colors.accent,
     marginTop: 20,
+  },
+  statsCard: {
+    marginTop: 20,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 4,
   },
 });
