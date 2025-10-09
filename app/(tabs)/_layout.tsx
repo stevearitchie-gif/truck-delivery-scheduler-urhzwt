@@ -10,8 +10,8 @@ export default function TabLayout() {
     {
       name: '(home)',
       route: '/(tabs)/(home)/',
-      icon: 'house.fill',
-      label: 'Home',
+      icon: 'truck.box.fill',
+      label: 'Deliveries',
     },
     {
       name: 'profile',
@@ -26,8 +26,8 @@ export default function TabLayout() {
     return (
       <NativeTabs>
         <NativeTabs.Trigger name="(home)">
-          <Icon sf="house.fill" drawable="ic_home" />
-          <Label>Home</Label>
+          <Icon sf="truck.box.fill" drawable="ic_delivery" />
+          <Label>Deliveries</Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
           <Icon sf="person.fill" drawable="ic_profile" />

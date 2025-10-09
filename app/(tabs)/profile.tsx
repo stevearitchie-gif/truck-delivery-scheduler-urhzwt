@@ -1,91 +1,208 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Platform, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
+import React from "react";
 import { useTheme } from "@react-navigation/native";
+import { colors, commonStyles, buttonStyles } from "@/styles/commonStyles";
+
+// Mock driver data
+const driverData = {
+  name: 'Mike Johnson',
+  employeeId: 'DRV001',
+  licenseClass: 'AZ',
+  phone: '(613) 555-0123',
+  email: 'mike.johnson@trucking.com',
+  homeBase: 'Gananoque, ON',
+  yearsExperience: 8,
+  totalDeliveries: 1247,
+  onTimeRate: 98.5,
+  safetyRating: 'Excellent'
+};
 
 export default function ProfileScreen() {
   const theme = useTheme();
 
-  return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={[
-          styles.contentContainer,
-          Platform.OS !== 'ios' && styles.contentContainerWithTabBar
-        ]}
-      >
-        <GlassView style={[
-          styles.profileHeader,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <IconSymbol name="person.circle.fill" size={80} color={theme.colors.primary} />
-          <Text style={[styles.name, { color: theme.colors.text }]}>John Doe</Text>
-          <Text style={[styles.email, { color: theme.dark ? '#98989D' : '#666' }]}>john.doe@example.com</Text>
-        </GlassView>
+  const ProfileItem = ({ icon, label, value, onPress }: {
+    icon: string;
+    label: string;
+    value: string;
+    onPress?: () => void;
+  }) => (
+    <Pressable 
+      style={[commonStyles.card, styles.profileItem]}
+      onPress={onPress}
+      disabled={!onPress}
+    >
+      <View style={commonStyles.row}>
+        <IconSymbol name={icon as any} color={colors.primary} size={20} />
+        <View style={{ marginLeft: 12, flex: 1 }}>
+          <Text style={styles.itemLabel}>{label}</Text>
+          <Text style={styles.itemValue}>{value}</Text>
+        </View>
+        {onPress && (
+          <IconSymbol name="chevron.right" color={colors.textSecondary} size={16} />
+        )}
+      </View>
+    </Pressable>
+  );
 
-        <GlassView style={[
-          styles.section,
-          Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-        ]} glassEffectStyle="regular">
-          <View style={styles.infoRow}>
-            <IconSymbol name="phone.fill" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>+1 (555) 123-4567</Text>
+  return (
+    <SafeAreaView style={[commonStyles.container, { backgroundColor: colors.background }]}>
+      <ScrollView 
+        style={commonStyles.content}
+        contentContainerStyle={[
+          styles.scrollContent,
+          Platform.OS !== 'ios' && styles.scrollContentWithTabBar
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Driver Header */}
+        <View style={[commonStyles.card, styles.headerCard]}>
+          <View style={styles.avatarContainer}>
+            <IconSymbol name="person.circle.fill" size={80} color={colors.primary} />
           </View>
-          <View style={styles.infoRow}>
-            <IconSymbol name="location.fill" size={20} color={theme.dark ? '#98989D' : '#666'} />
-            <Text style={[styles.infoText, { color: theme.colors.text }]}>San Francisco, CA</Text>
+          <Text style={commonStyles.title}>{driverData.name}</Text>
+          <Text style={commonStyles.textSecondary}>
+            Employee ID: {driverData.employeeId}
+          </Text>
+          <Text style={commonStyles.textSecondary}>
+            {driverData.homeBase}
+          </Text>
+        </View>
+
+        {/* Contact Information */}
+        <Text style={[commonStyles.subtitle, { marginBottom: 12 }]}>
+          Contact Information
+        </Text>
+        <ProfileItem
+          icon="phone.fill"
+          label="Phone"
+          value={driverData.phone}
+          onPress={() => Alert.alert('Call', `Calling ${driverData.phone}`)}
+        />
+        <ProfileItem
+          icon="envelope.fill"
+          label="Email"
+          value={driverData.email}
+          onPress={() => Alert.alert('Email', `Opening email to ${driverData.email}`)}
+        />
+
+        {/* Driver Information */}
+        <Text style={[commonStyles.subtitle, { marginTop: 24, marginBottom: 12 }]}>
+          Driver Information
+        </Text>
+        <ProfileItem
+          icon="car.fill"
+          label="License Class"
+          value={driverData.licenseClass}
+        />
+        <ProfileItem
+          icon="calendar"
+          label="Years of Experience"
+          value={`${driverData.yearsExperience} years`}
+        />
+
+        {/* Performance Stats */}
+        <Text style={[commonStyles.subtitle, { marginTop: 24, marginBottom: 12 }]}>
+          Performance Statistics
+        </Text>
+        <ProfileItem
+          icon="cube.box.fill"
+          label="Total Deliveries"
+          value={driverData.totalDeliveries.toLocaleString()}
+        />
+        <ProfileItem
+          icon="clock.fill"
+          label="On-Time Rate"
+          value={`${driverData.onTimeRate}%`}
+        />
+        <ProfileItem
+          icon="shield.checkered"
+          label="Safety Rating"
+          value={driverData.safetyRating}
+        />
+
+        {/* Settings */}
+        <Text style={[commonStyles.subtitle, { marginTop: 24, marginBottom: 12 }]}>
+          Settings
+        </Text>
+        <ProfileItem
+          icon="bell.fill"
+          label="Notifications"
+          value="Enabled"
+          onPress={() => Alert.alert('Notifications', 'Notification settings')}
+        />
+        <ProfileItem
+          icon="location.fill"
+          label="Location Services"
+          value="Enabled"
+          onPress={() => Alert.alert('Location', 'Location settings')}
+        />
+        <ProfileItem
+          icon="gear"
+          label="App Settings"
+          value="Configure"
+          onPress={() => Alert.alert('Settings', 'App settings and preferences')}
+        />
+
+        {/* Emergency Contact */}
+        <View style={[commonStyles.card, styles.emergencyCard]}>
+          <View style={[commonStyles.row, { marginBottom: 12 }]}>
+            <IconSymbol name="exclamationmark.triangle.fill" color="#ff3b30" size={24} />
+            <Text style={[styles.emergencyTitle, { marginLeft: 12 }]}>
+              Emergency Contact
+            </Text>
           </View>
-        </GlassView>
+          <Pressable 
+            style={[buttonStyles.accent, { backgroundColor: '#ff3b30' }]}
+            onPress={() => Alert.alert('Emergency', 'Calling dispatch emergency line...')}
+          >
+            <Text style={[buttonStyles.primaryText]}>
+              Call Dispatch Emergency
+            </Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    // backgroundColor handled dynamically
+  scrollContent: {
+    paddingBottom: 20,
   },
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    padding: 20,
-  },
-  contentContainerWithTabBar: {
+  scrollContentWithTabBar: {
     paddingBottom: 100, // Extra padding for floating tab bar
   },
-  profileHeader: {
+  headerCard: {
     alignItems: 'center',
-    borderRadius: 12,
-    padding: 32,
+    marginBottom: 24,
+  },
+  avatarContainer: {
     marginBottom: 16,
-    gap: 12,
   },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    // color handled dynamically
+  profileItem: {
+    marginBottom: 2,
   },
-  email: {
+  itemLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  itemValue: {
     fontSize: 16,
-    // color handled dynamically
+    color: colors.text,
+    fontWeight: '500',
   },
-  section: {
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
+  emergencyCard: {
+    backgroundColor: '#fff5f5',
+    borderLeftWidth: 4,
+    borderLeftColor: '#ff3b30',
+    marginTop: 24,
   },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  infoText: {
+  emergencyTitle: {
     fontSize: 16,
-    // color handled dynamically
+    fontWeight: '600',
+    color: '#ff3b30',
   },
 });
