@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Stack } from "expo-router";
 import { Pressable, StyleSheet, View, Text, Alert, Platform, ScrollView } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
@@ -71,7 +72,13 @@ export default function HomeScreen() {
   const [deliveries, setDeliveries] = useState<Delivery[]>(mockDeliveries);
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
 
+  useEffect(() => {
+    console.log('HomeScreen mounted');
+    console.log('Deliveries loaded:', deliveries.length);
+  }, []);
+
   const updateDeliveryStatus = (deliveryId: string, newStatus: Delivery['status']) => {
+    console.log('Updating delivery status:', deliveryId, newStatus);
     setDeliveries(prev => 
       prev.map(delivery => 
         delivery.id === deliveryId 
@@ -79,115 +86,21 @@ export default function HomeScreen() {
           : delivery
       )
     );
-    Alert.alert('Status Updated', `Delivery status updated successfully!`);
+    Alert.alert('Status Updated', `Delivery status updated to ${newStatus}!`);
     setSelectedDelivery(null);
   };
 
-  const renderDeliveryDetails = () => {
-    if (!selectedDelivery) return null;
-
-    return (
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={[commonStyles.row, commonStyles.spaceBetween, { marginBottom: 20 }]}>
-            <Text style={commonStyles.title}>Delivery Details</Text>
-            <Pressable onPress={() => setSelectedDelivery(null)}>
-              <IconSymbol name="xmark" color={colors.textSecondary} size={24} />
-            </Pressable>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={[commonStyles.card, { marginBottom: 0 }]}>
-              <Text style={styles.sectionTitle}>Customer Information</Text>
-              <Text style={commonStyles.text}>{selectedDelivery.customerName}</Text>
-              <Text style={commonStyles.textSecondary}>
-                {selectedDelivery.address}
-              </Text>
-              <Text style={commonStyles.textSecondary}>
-                {selectedDelivery.city}, {selectedDelivery.province}
-              </Text>
-            </View>
-
-            <View style={commonStyles.card}>
-              <Text style={styles.sectionTitle}>Delivery Information</Text>
-              <View style={[commonStyles.row, { marginBottom: 8 }]}>
-                <IconSymbol name="cube.box" color={colors.primary} size={20} />
-                <Text style={[commonStyles.text, { marginLeft: 8 }]}>
-                  {selectedDelivery.containerSize}&apos; Container
-                </Text>
-              </View>
-              <View style={[commonStyles.row, { marginBottom: 8 }]}>
-                <IconSymbol name="calendar" color={colors.primary} size={20} />
-                <Text style={[commonStyles.text, { marginLeft: 8 }]}>
-                  {selectedDelivery.scheduledDate} at {selectedDelivery.scheduledTime}
-                </Text>
-              </View>
-              <View style={commonStyles.row}>
-                <IconSymbol name="person.circle" color={colors.primary} size={20} />
-                <Text style={[commonStyles.text, { marginLeft: 8 }]}>
-                  Driver: {selectedDelivery.driverName}
-                </Text>
-              </View>
-            </View>
-
-            {selectedDelivery.specialInstructions && (
-              <View style={commonStyles.card}>
-                <Text style={styles.sectionTitle}>Special Instructions</Text>
-                <Text style={commonStyles.text}>{selectedDelivery.specialInstructions}</Text>
-              </View>
-            )}
-
-            <View style={commonStyles.card}>
-              <Text style={styles.sectionTitle}>Update Status</Text>
-              <View style={styles.statusButtons}>
-                {(['scheduled', 'en-route', 'arrived', 'delivered', 'delayed'] as const).map((status) => (
-                  <Pressable
-                    key={status}
-                    style={[
-                      styles.statusButton,
-                      { backgroundColor: getStatusColor(status) },
-                      selectedDelivery.status === status && styles.activeStatusButton
-                    ]}
-                    onPress={() => updateDeliveryStatus(selectedDelivery.id, status)}
-                  >
-                    <Text style={styles.statusButtonText}>
-                      {getStatusText(status)}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.actionButtons}>
-              <Pressable 
-                style={[buttonStyles.secondary, { flex: 1, marginRight: 8 }]}
-                onPress={() => {
-                  Alert.alert('Navigation', 'Opening maps for navigation...');
-                  // Note: react-native-maps is not supported in Natively
-                  // In a real app, you would use Linking.openURL with maps URL
-                }}
-              >
-                <Text style={buttonStyles.secondaryText}>Navigate</Text>
-              </Pressable>
-              <Pressable 
-                style={[buttonStyles.primary, { flex: 1, marginLeft: 8 }]}
-                onPress={() => {
-                  Alert.alert('Contact', `Calling customer: ${selectedDelivery.customerName}`);
-                  // In a real app, you would use Linking.openURL with tel: URL
-                }}
-              >
-                <Text style={buttonStyles.primaryText}>Call Customer</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    );
+  const handleDeliveryPress = (delivery: Delivery) => {
+    console.log('Delivery pressed:', delivery.id, delivery.customerName);
+    setSelectedDelivery(delivery);
   };
 
   const renderHeaderRight = () => (
     <Pressable
-      onPress={() => Alert.alert("Add Delivery", "This feature will allow dispatchers to add new deliveries")}
+      onPress={() => {
+        console.log('Add delivery button pressed');
+        Alert.alert("Add Delivery", "This feature will allow dispatchers to add new deliveries");
+      }}
       style={styles.headerButtonContainer}
     >
       <IconSymbol name="plus" color={colors.primary} />
@@ -196,7 +109,10 @@ export default function HomeScreen() {
 
   const renderHeaderLeft = () => (
     <Pressable
-      onPress={() => Alert.alert("Settings", "Driver settings and preferences")}
+      onPress={() => {
+        console.log('Settings button pressed');
+        Alert.alert("Settings", "Driver settings and preferences");
+      }}
       style={styles.headerButtonContainer}
     >
       <IconSymbol name="gear" color={colors.primary} />
@@ -206,6 +122,8 @@ export default function HomeScreen() {
   // Filter deliveries for today and upcoming
   const todayDeliveries = deliveries.filter(d => d.scheduledDate === '2024-01-15');
   const upcomingDeliveries = deliveries.filter(d => d.scheduledDate > '2024-01-15');
+
+  console.log('Rendering HomeScreen - Today:', todayDeliveries.length, 'Upcoming:', upcomingDeliveries.length);
 
   return (
     <>
@@ -236,11 +154,22 @@ export default function HomeScreen() {
           </View>
 
           {/* Today's Deliveries */}
-          {todayDeliveries.map((delivery) => (
-            <View key={delivery.id}>
-              {renderDeliveryCard({ item: delivery })}
+          {todayDeliveries.length > 0 ? (
+            todayDeliveries.map((delivery) => (
+              <DeliveryCard
+                key={delivery.id}
+                delivery={delivery}
+                onPress={handleDeliveryPress}
+              />
+            ))
+          ) : (
+            <View style={[commonStyles.card, commonStyles.centerContent, { padding: 40 }]}>
+              <IconSymbol name="checkmark.circle" color={colors.secondary} size={48} />
+              <Text style={[commonStyles.text, { marginTop: 16, textAlign: 'center' }]}>
+                No deliveries scheduled for today
+              </Text>
             </View>
-          ))}
+          )}
 
           {/* Upcoming Deliveries */}
           {upcomingDeliveries.length > 0 && (
@@ -249,9 +178,11 @@ export default function HomeScreen() {
                 Upcoming Deliveries
               </Text>
               {upcomingDeliveries.map((delivery) => (
-                <View key={delivery.id}>
-                  {renderDeliveryCard({ item: delivery })}
-                </View>
+                <DeliveryCard
+                  key={delivery.id}
+                  delivery={delivery}
+                  onPress={handleDeliveryPress}
+                />
               ))}
             </>
           )}
@@ -268,10 +199,33 @@ export default function HomeScreen() {
               </Text>
             </View>
           </View>
+
+          {/* Test Section - Remove this after confirming app works */}
+          <View style={[commonStyles.card, { backgroundColor: '#e8f5e8', marginTop: 20 }]}>
+            <Text style={[commonStyles.text, { fontWeight: '600', color: colors.secondary }]}>
+              ✅ App Status: Working
+            </Text>
+            <Text style={commonStyles.textSecondary}>
+              • {deliveries.length} deliveries loaded
+            </Text>
+            <Text style={commonStyles.textSecondary}>
+              • Modal state: {selectedDelivery ? 'Open' : 'Closed'}
+            </Text>
+            <Text style={commonStyles.textSecondary}>
+              • Platform: {Platform.OS}
+            </Text>
+          </View>
         </ScrollView>
 
         {/* Delivery Details Modal */}
-        {renderDeliveryDetails()}
+        <DeliveryDetailsModal
+          delivery={selectedDelivery}
+          onClose={() => {
+            console.log('Modal closed');
+            setSelectedDelivery(null);
+          }}
+          onUpdateStatus={updateDeliveryStatus}
+        />
       </View>
     </>
   );
@@ -287,69 +241,8 @@ const styles = StyleSheet.create({
   headerInfo: {
     marginBottom: 20,
   },
-  deliveryCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
-  },
-  customerName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 4,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
   headerButtonContainer: {
     padding: 6,
-  },
-  modalOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  modalContent: {
-    backgroundColor: colors.background,
-    borderRadius: 16,
-    padding: 20,
-    margin: 20,
-    maxHeight: '80%',
-    width: '90%',
-    boxShadow: '0px 10px 25px rgba(0, 0, 0, 0.2)',
-    elevation: 10,
-  },
-  statusButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  statusButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 8,
-  },
-  activeStatusButton: {
-    borderWidth: 2,
-    borderColor: colors.text,
-  },
-  statusButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    marginTop: 20,
   },
   noticeCard: {
     flexDirection: 'row',

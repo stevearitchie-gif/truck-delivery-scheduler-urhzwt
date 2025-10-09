@@ -47,10 +47,15 @@ export const getStatusText = (status: Delivery['status']) => {
 };
 
 export default function DeliveryCard({ delivery, onPress }: DeliveryCardProps) {
+  const handlePress = () => {
+    console.log('DeliveryCard pressed:', delivery.id);
+    onPress(delivery);
+  };
+
   return (
     <Pressable 
       style={[commonStyles.card, styles.deliveryCard]}
-      onPress={() => onPress(delivery)}
+      onPress={handlePress}
     >
       <View style={[commonStyles.row, commonStyles.spaceBetween, { marginBottom: 12 }]}>
         <View style={{ flex: 1 }}>
