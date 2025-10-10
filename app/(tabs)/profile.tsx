@@ -1,9 +1,11 @@
+
 import { View, Text, StyleSheet, ScrollView, Platform, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/IconSymbol";
 import React from "react";
 import { useTheme } from "@react-navigation/native";
 import { colors, commonStyles, buttonStyles } from "@/styles/commonStyles";
+import SpacesStorageLogo from "@/components/SpacesStorageLogo";
 
 // Mock driver data
 const driverData = {
@@ -56,6 +58,15 @@ export default function ProfileScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        {/* Company Branding */}
+        <View style={[commonStyles.card, styles.brandingCard]}>
+          <SpacesStorageLogo size="large" />
+          <Text style={styles.companyName}>Spaces Storage Group</Text>
+          <Text style={commonStyles.textSecondary}>
+            Eastern Ontario & Upper New York State
+          </Text>
+        </View>
+
         {/* Driver Header */}
         <View style={[commonStyles.card, styles.headerCard]}>
           <View style={styles.avatarContainer}>
@@ -173,6 +184,18 @@ const styles = StyleSheet.create({
   },
   scrollContentWithTabBar: {
     paddingBottom: 100, // Extra padding for floating tab bar
+  },
+  brandingCard: {
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingVertical: 24,
+  },
+  companyName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.primary,
+    marginTop: 12,
+    marginBottom: 4,
   },
   headerCard: {
     alignItems: 'center',

@@ -8,6 +8,7 @@ import { colors, commonStyles } from "@/styles/commonStyles";
 import DeliveryCard, { Delivery } from "@/components/DeliveryCard";
 import DeliveryDetailsModal from "@/components/DeliveryDetailsModal";
 import AddDeliveryModal from "@/components/AddDeliveryModal";
+import SpacesStorageLogo from "@/components/SpacesStorageLogo";
 
 // Mock data for deliveries
 const mockDeliveries: Delivery[] = [
@@ -162,6 +163,14 @@ export default function HomeScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
+          {/* Company Logo Header */}
+          <View style={styles.logoHeader}>
+            <SpacesStorageLogo size="medium" />
+            <Text style={styles.companyTagline}>
+              Professional Container Delivery Services
+            </Text>
+          </View>
+
           {/* Header Info */}
           <View style={styles.headerInfo}>
             <Text style={commonStyles.title}>Today&apos;s Deliveries</Text>
@@ -292,6 +301,18 @@ const styles = StyleSheet.create({
   },
   scrollContentWithTabBar: {
     paddingBottom: 100, // Extra padding for floating tab bar
+  },
+  logoHeader: {
+    alignItems: 'center',
+    marginBottom: 24,
+    paddingVertical: 16,
+  },
+  companyTagline: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginTop: 8,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
   headerInfo: {
     marginBottom: 20,
