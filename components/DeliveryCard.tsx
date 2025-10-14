@@ -10,7 +10,7 @@ export interface Delivery {
   address: string;
   city: string;
   province: string;
-  containerSize: '20' | '40';
+  containerSize: string;
   deliveryType: 'sales' | 'rental';
   scheduledDate: string;
   scheduledTime: string;
@@ -66,16 +66,9 @@ export default function DeliveryCard({ delivery, onPress }: DeliveryCardProps) {
       style={[commonStyles.card, styles.deliveryCard]}
       onPress={handlePress}
     >
-      <View style={[commonStyles.row, commonStyles.spaceBetween, { marginBottom: 12 }]}>
-        <View style={{ flex: 1 }}>
-          <View style={[commonStyles.row, { marginBottom: 4 }]}>
-            <Text style={styles.customerName}>{delivery.customerName}</Text>
-            <View style={[styles.deliveryTypeBadge, { backgroundColor: getDeliveryTypeColor(delivery.deliveryType) }]}>
-              <Text style={styles.deliveryTypeText}>
-                {getDeliveryTypeText(delivery.deliveryType)}
-              </Text>
-            </View>
-          </View>
+      <View style={[commonStyles.row, commonStyles.spaceBetween, { marginBottom: 8 }]}>
+        <View style={{ flex: 1, marginRight: 8 }}>
+          <Text style={styles.customerName}>{delivery.customerName}</Text>
           <Text style={commonStyles.textSecondary}>{delivery.city}, {delivery.province}</Text>
         </View>
         <View style={[commonStyles.statusBadge, { backgroundColor: getStatusColor(delivery.status) }]}>
@@ -85,11 +78,19 @@ export default function DeliveryCard({ delivery, onPress }: DeliveryCardProps) {
         </View>
       </View>
       
+      <View style={[commonStyles.row, { marginBottom: 8 }]}>
+        <View style={[styles.deliveryTypeBadge, { backgroundColor: getDeliveryTypeColor(delivery.deliveryType) }]}>
+          <Text style={styles.deliveryTypeText}>
+            {getDeliveryTypeText(delivery.deliveryType)}
+          </Text>
+        </View>
+      </View>
+      
       <View style={[commonStyles.row, commonStyles.spaceBetween, { marginBottom: 8 }]}>
         <View style={commonStyles.row}>
           <IconSymbol name="cube.box" color={colors.primary} size={16} />
           <Text style={[commonStyles.textSecondary, { marginLeft: 6 }]}>
-            {delivery.containerSize}&apos; Container
+            {delivery.containerSize}
           </Text>
         </View>
         <Text style={commonStyles.textSecondary}>
@@ -116,12 +117,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.text,
-    marginRight: 8,
   },
   deliveryTypeBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
     alignSelf: 'flex-start',
   },
   deliveryTypeText: {
@@ -129,5 +129,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#ffffff',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
 });

@@ -95,7 +95,7 @@ export default function DeliveryDetailsModal({
               <View style={[commonStyles.row, { marginBottom: 8 }]}>
                 <IconSymbol name="cube.box" color={colors.primary} size={20} />
                 <Text style={[commonStyles.text, { marginLeft: 8 }]}>
-                  {delivery.containerSize}&apos; Container
+                  {delivery.containerSize}
                 </Text>
               </View>
               <View style={[commonStyles.row, { marginBottom: 8 }]}>

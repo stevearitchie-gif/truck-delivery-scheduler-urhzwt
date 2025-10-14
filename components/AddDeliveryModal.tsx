@@ -26,7 +26,7 @@ interface DeliveryFormData {
   address: string;
   city: string;
   province: string;
-  containerSize: '20' | '40';
+  containerSize: string;
   deliveryType: 'sales' | 'rental';
   scheduledDate: string;
   scheduledTime: string;
@@ -40,7 +40,7 @@ const initialFormData: DeliveryFormData = {
   address: '',
   city: '',
   province: 'ON',
-  containerSize: '20',
+  containerSize: "20' new",
   deliveryType: 'sales',
   scheduledDate: '',
   scheduledTime: '',
@@ -60,6 +60,22 @@ const availableDrivers = [
 ];
 
 const provinces = ['ON', 'QC', 'NY', 'VT', 'NH', 'ME'];
+
+const containerTypes = [
+  "10' container",
+  "20' used",
+  "20' reconditioned",
+  "20' new",
+  "20' modified",
+  "40' used",
+  "40' reconditioned",
+  "40' new",
+  "40' modified",
+  "40' HC used",
+  "40' HC reconditioned",
+  "40' HC new",
+  "40' HC modified",
+];
 
 export default function AddDeliveryModal({ 
   visible, 
@@ -150,7 +166,7 @@ export default function AddDeliveryModal({
     setShowProvincePicker(false);
   };
 
-  const selectContainerSize = (size: '20' | '40') => {
+  const selectContainerSize = (size: string) => {
     updateFormData('containerSize', size);
     setShowContainerPicker(false);
   };
@@ -244,13 +260,13 @@ export default function AddDeliveryModal({
                 <IconSymbol name="chevron.down" color={colors.textSecondary} size={16} />
               </Pressable>
 
-              <Text style={styles.fieldLabel}>Container Size *</Text>
+              <Text style={styles.fieldLabel}>Container Type *</Text>
               <Pressable 
                 style={styles.pickerButton}
                 onPress={() => setShowContainerPicker(true)}
               >
                 <Text style={[styles.pickerText, !formData.containerSize && styles.placeholderText]}>
-                  {formData.containerSize ? `${formData.containerSize}' Container` : 'Select container size'}
+                  {formData.containerSize || 'Select container type'}
                 </Text>
                 <IconSymbol name="chevron.down" color={colors.textSecondary} size={16} />
               </Pressable>
@@ -422,20 +438,20 @@ export default function AddDeliveryModal({
         </Modal>
       )}
 
-      {/* Container Size Picker Modal */}
+      {/* Container Type Picker Modal */}
       {showContainerPicker && (
         <Modal transparent={true} animationType="fade">
           <View style={styles.pickerOverlay}>
             <View style={styles.pickerModal}>
-              <Text style={styles.pickerTitle}>Select Container Size</Text>
+              <Text style={styles.pickerTitle}>Select Container Type</Text>
               <ScrollView style={styles.pickerList}>
-                {(['20', '40'] as const).map((size) => (
+                {containerTypes.map((type) => (
                   <Pressable
-                    key={size}
+                    key={type}
                     style={styles.pickerItem}
-                    onPress={() => selectContainerSize(size)}
+                    onPress={() => selectContainerSize(type)}
                   >
-                    <Text style={styles.pickerItemText}>{size}' Container</Text>
+                    <Text style={styles.pickerItemText}>{type}</Text>
                   </Pressable>
                 ))}
               </ScrollView>
