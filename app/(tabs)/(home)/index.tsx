@@ -19,6 +19,7 @@ const mockDeliveries: Delivery[] = [
     city: 'Kingston',
     province: 'ON',
     containerSize: '40',
+    deliveryType: 'sales',
     scheduledDate: '2024-01-15',
     scheduledTime: '09:00',
     status: 'scheduled',
@@ -33,6 +34,7 @@ const mockDeliveries: Delivery[] = [
     city: 'Ottawa',
     province: 'ON',
     containerSize: '20',
+    deliveryType: 'rental',
     scheduledDate: '2024-01-15',
     scheduledTime: '14:30',
     status: 'en-route',
@@ -47,6 +49,7 @@ const mockDeliveries: Delivery[] = [
     city: 'Syracuse',
     province: 'NY',
     containerSize: '40',
+    deliveryType: 'sales',
     scheduledDate: '2024-01-16',
     scheduledTime: '11:00',
     status: 'scheduled',
@@ -60,6 +63,7 @@ const mockDeliveries: Delivery[] = [
     city: 'Brockville',
     province: 'ON',
     containerSize: '20',
+    deliveryType: 'rental',
     scheduledDate: '2024-01-16',
     scheduledTime: '08:00',
     status: 'delivered',
@@ -140,6 +144,10 @@ export default function HomeScreen() {
   // Filter deliveries for today and upcoming
   const todayDeliveries = deliveries.filter(d => d.scheduledDate === '2024-01-15');
   const upcomingDeliveries = deliveries.filter(d => d.scheduledDate > '2024-01-15');
+
+  // Count sales vs rental
+  const salesCount = deliveries.filter(d => d.deliveryType === 'sales').length;
+  const rentalCount = deliveries.filter(d => d.deliveryType === 'rental').length;
 
   console.log('Rendering HomeScreen - Today:', todayDeliveries.length, 'Upcoming:', upcomingDeliveries.length);
 
@@ -224,18 +232,37 @@ export default function HomeScreen() {
                 <Text style={commonStyles.textSecondary}>Total</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>
-                  {deliveries.filter(d => d.status === 'scheduled').length}
+                <Text style={[styles.statNumber, { color: '#34C759' }]}>
+                  {salesCount}
                 </Text>
-                <Text style={commonStyles.textSecondary}>Scheduled</Text>
+                <Text style={commonStyles.textSecondary}>Sales</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>
+                <Text style={[styles.statNumber, { color: '#007AFF' }]}>
+                  {rentalCount}
+                </Text>
+                <Text style={commonStyles.textSecondary}>Rentals</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={[styles.statNumber, { color: colors.secondary }]}>
                   {deliveries.filter(d => d.status === 'delivered').length}
                 </Text>
                 <Text style={commonStyles.textSecondary}>Delivered</Text>
               </View>
             </View>
+          </View>
+
+          {/* Delivery Type Info Card */}
+          <View style={[commonStyles.card, styles.infoCard]}>
+            <View style={[commonStyles.row, { marginBottom: 12 }]}>
+              <IconSymbol name="info.circle.fill" color={colors.primary} size={24} />
+              <Text style={[commonStyles.text, { fontWeight: '600', marginLeft: 8 }]}>
+                Sales & Rental Deliveries
+              </Text>
+            </View>
+            <Text style={commonStyles.textSecondary}>
+              Our drivers handle both sales and rental deliveries. Each delivery is clearly marked with its type to ensure proper handling and documentation.
+            </Text>
           </View>
 
           {/* Maps Notice */}
@@ -249,25 +276,6 @@ export default function HomeScreen() {
                 Interactive maps are not supported in Natively. Use the &quot;Navigate&quot; button to open your device&apos;s default maps app for turn-by-turn directions.
               </Text>
             </View>
-          </View>
-
-          {/* Test Section - Remove this after confirming app works */}
-          <View style={[commonStyles.card, { backgroundColor: '#e8f5e8', marginTop: 20 }]}>
-            <Text style={[commonStyles.text, { fontWeight: '600', color: colors.secondary }]}>
-              ✅ App Status: Working
-            </Text>
-            <Text style={commonStyles.textSecondary}>
-              • {deliveries.length} deliveries loaded
-            </Text>
-            <Text style={commonStyles.textSecondary}>
-              • Modal state: {selectedDelivery ? 'Open' : 'Closed'}
-            </Text>
-            <Text style={commonStyles.textSecondary}>
-              • Add delivery modal: {showAddDeliveryModal ? 'Open' : 'Closed'}
-            </Text>
-            <Text style={commonStyles.textSecondary}>
-              • Platform: {Platform.OS}
-            </Text>
           </View>
         </ScrollView>
 
@@ -326,6 +334,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff8e1',
     borderLeftWidth: 4,
     borderLeftColor: colors.accent,
+    marginTop: 20,
+  },
+  infoCard: {
+    backgroundColor: '#e8f5ff',
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
     marginTop: 20,
   },
   statsCard: {

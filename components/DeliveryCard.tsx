@@ -11,6 +11,7 @@ export interface Delivery {
   city: string;
   province: string;
   containerSize: '20' | '40';
+  deliveryType: 'sales' | 'rental';
   scheduledDate: string;
   scheduledTime: string;
   status: 'scheduled' | 'en-route' | 'arrived' | 'delivered' | 'delayed';
@@ -46,6 +47,14 @@ export const getStatusText = (status: Delivery['status']) => {
   }
 };
 
+export const getDeliveryTypeColor = (type: Delivery['deliveryType']) => {
+  return type === 'sales' ? '#34C759' : '#007AFF';
+};
+
+export const getDeliveryTypeText = (type: Delivery['deliveryType']) => {
+  return type === 'sales' ? 'Sales' : 'Rental';
+};
+
 export default function DeliveryCard({ delivery, onPress }: DeliveryCardProps) {
   const handlePress = () => {
     console.log('DeliveryCard pressed:', delivery.id);
@@ -59,7 +68,14 @@ export default function DeliveryCard({ delivery, onPress }: DeliveryCardProps) {
     >
       <View style={[commonStyles.row, commonStyles.spaceBetween, { marginBottom: 12 }]}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.customerName}>{delivery.customerName}</Text>
+          <View style={[commonStyles.row, { marginBottom: 4 }]}>
+            <Text style={styles.customerName}>{delivery.customerName}</Text>
+            <View style={[styles.deliveryTypeBadge, { backgroundColor: getDeliveryTypeColor(delivery.deliveryType) }]}>
+              <Text style={styles.deliveryTypeText}>
+                {getDeliveryTypeText(delivery.deliveryType)}
+              </Text>
+            </View>
+          </View>
           <Text style={commonStyles.textSecondary}>{delivery.city}, {delivery.province}</Text>
         </View>
         <View style={[commonStyles.statusBadge, { backgroundColor: getStatusColor(delivery.status) }]}>
@@ -100,6 +116,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 4,
+    marginRight: 8,
+  },
+  deliveryTypeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+  },
+  deliveryTypeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#ffffff',
+    textTransform: 'uppercase',
   },
 });

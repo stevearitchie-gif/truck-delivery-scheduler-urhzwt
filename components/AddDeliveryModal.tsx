@@ -27,6 +27,7 @@ interface DeliveryFormData {
   city: string;
   province: string;
   containerSize: '20' | '40';
+  deliveryType: 'sales' | 'rental';
   scheduledDate: string;
   scheduledTime: string;
   specialInstructions: string;
@@ -40,6 +41,7 @@ const initialFormData: DeliveryFormData = {
   city: '',
   province: 'ON',
   containerSize: '20',
+  deliveryType: 'sales',
   scheduledDate: '',
   scheduledTime: '',
   specialInstructions: '',
@@ -68,6 +70,7 @@ export default function AddDeliveryModal({
   const [showDriverPicker, setShowDriverPicker] = useState(false);
   const [showProvincePicker, setShowProvincePicker] = useState(false);
   const [showContainerPicker, setShowContainerPicker] = useState(false);
+  const [showDeliveryTypePicker, setShowDeliveryTypePicker] = useState(false);
 
   const updateFormData = (field: keyof DeliveryFormData, value: string) => {
     console.log('Updating form field:', field, value);
@@ -152,6 +155,11 @@ export default function AddDeliveryModal({
     setShowContainerPicker(false);
   };
 
+  const selectDeliveryType = (type: 'sales' | 'rental') => {
+    updateFormData('deliveryType', type);
+    setShowDeliveryTypePicker(false);
+  };
+
   if (!visible) return null;
 
   return (
@@ -218,6 +226,24 @@ export default function AddDeliveryModal({
             <View style={[commonStyles.card, { marginBottom: 16 }]}>
               <Text style={styles.sectionTitle}>Delivery Details</Text>
               
+              <Text style={styles.fieldLabel}>Delivery Type *</Text>
+              <Pressable 
+                style={styles.pickerButton}
+                onPress={() => setShowDeliveryTypePicker(true)}
+              >
+                <View style={commonStyles.row}>
+                  <IconSymbol 
+                    name={formData.deliveryType === 'sales' ? 'cart.fill' : 'arrow.triangle.2.circlepath'} 
+                    color={formData.deliveryType === 'sales' ? '#34C759' : '#007AFF'} 
+                    size={20} 
+                  />
+                  <Text style={[styles.pickerText, { marginLeft: 8 }]}>
+                    {formData.deliveryType === 'sales' ? 'Sales Delivery' : 'Rental Delivery'}
+                  </Text>
+                </View>
+                <IconSymbol name="chevron.down" color={colors.textSecondary} size={16} />
+              </Pressable>
+
               <Text style={styles.fieldLabel}>Container Size *</Text>
               <Pressable 
                 style={styles.pickerButton}
@@ -292,6 +318,53 @@ export default function AddDeliveryModal({
           </ScrollView>
         </View>
       </View>
+
+      {/* Delivery Type Picker Modal */}
+      {showDeliveryTypePicker && (
+        <Modal transparent={true} animationType="fade">
+          <View style={styles.pickerOverlay}>
+            <View style={styles.pickerModal}>
+              <Text style={styles.pickerTitle}>Select Delivery Type</Text>
+              <ScrollView style={styles.pickerList}>
+                <Pressable
+                  style={styles.pickerItem}
+                  onPress={() => selectDeliveryType('sales')}
+                >
+                  <View style={commonStyles.row}>
+                    <IconSymbol name="cart.fill" color="#34C759" size={24} />
+                    <View style={{ marginLeft: 12 }}>
+                      <Text style={styles.pickerItemText}>Sales Delivery</Text>
+                      <Text style={styles.pickerItemSubtext}>
+                        Container sold to customer
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+                <Pressable
+                  style={styles.pickerItem}
+                  onPress={() => selectDeliveryType('rental')}
+                >
+                  <View style={commonStyles.row}>
+                    <IconSymbol name="arrow.triangle.2.circlepath" color="#007AFF" size={24} />
+                    <View style={{ marginLeft: 12 }}>
+                      <Text style={styles.pickerItemText}>Rental Delivery</Text>
+                      <Text style={styles.pickerItemSubtext}>
+                        Container rented to customer
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              </ScrollView>
+              <Pressable 
+                style={styles.pickerCancel}
+                onPress={() => setShowDeliveryTypePicker(false)}
+              >
+                <Text style={styles.pickerCancelText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+      )}
 
       {/* Driver Picker Modal */}
       {showDriverPicker && (
@@ -485,6 +558,12 @@ const styles = StyleSheet.create({
   pickerItemText: {
     fontSize: 16,
     color: colors.text,
+    fontWeight: '500',
+  },
+  pickerItemSubtext: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    marginTop: 2,
   },
   pickerCancel: {
     marginTop: 16,

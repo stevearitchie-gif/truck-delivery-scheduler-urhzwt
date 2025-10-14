@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView, Alert, Modal } from 'react-native';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors, commonStyles, buttonStyles } from '@/styles/commonStyles';
-import { Delivery, getStatusColor, getStatusText } from './DeliveryCard';
+import { Delivery, getStatusColor, getStatusText, getDeliveryTypeColor, getDeliveryTypeText } from './DeliveryCard';
 
 interface DeliveryDetailsModalProps {
   delivery: Delivery | null;
@@ -73,6 +73,25 @@ export default function DeliveryDetailsModal({
             {/* Delivery Information */}
             <View style={[commonStyles.card, { marginBottom: 16 }]}>
               <Text style={styles.sectionTitle}>Delivery Information</Text>
+              
+              <View style={[commonStyles.row, { marginBottom: 12 }]}>
+                <IconSymbol 
+                  name={delivery.deliveryType === 'sales' ? 'cart.fill' : 'arrow.triangle.2.circlepath'} 
+                  color={getDeliveryTypeColor(delivery.deliveryType)} 
+                  size={20} 
+                />
+                <View style={{ marginLeft: 8 }}>
+                  <Text style={[commonStyles.text, { fontWeight: '600' }]}>
+                    {getDeliveryTypeText(delivery.deliveryType)} Delivery
+                  </Text>
+                  <Text style={[commonStyles.textSecondary, { fontSize: 13 }]}>
+                    {delivery.deliveryType === 'sales' 
+                      ? 'Container sold to customer' 
+                      : 'Container rented to customer'}
+                  </Text>
+                </View>
+              </View>
+
               <View style={[commonStyles.row, { marginBottom: 8 }]}>
                 <IconSymbol name="cube.box" color={colors.primary} size={20} />
                 <Text style={[commonStyles.text, { marginLeft: 8 }]}>
