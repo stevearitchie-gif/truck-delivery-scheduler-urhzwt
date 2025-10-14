@@ -10,6 +10,10 @@ import DeliveryDetailsModal from "@/components/DeliveryDetailsModal";
 import AddDeliveryModal from "@/components/AddDeliveryModal";
 import SpacesStorageLogo from "@/components/SpacesStorageLogo";
 
+// Mock current driver - in a real app this would come from authentication
+const CURRENT_DRIVER_ID = 'driver1';
+const CURRENT_DRIVER_NAME = 'Mike Johnson';
+
 // Mock data for deliveries
 const mockDeliveries: Delivery[] = [
   {
@@ -70,6 +74,34 @@ const mockDeliveries: Delivery[] = [
     specialInstructions: 'Completed delivery - signed by J. Smith',
     driverId: 'driver3',
     driverName: 'Tom Wilson'
+  },
+  {
+    id: '5',
+    customerName: 'Rochester Warehouse Co',
+    address: '555 Storage Lane',
+    city: 'Rochester',
+    province: 'NY',
+    containerSize: '40',
+    deliveryType: 'sales',
+    scheduledDate: '2024-01-17',
+    scheduledTime: '10:30',
+    status: 'scheduled',
+    driverId: 'driver1',
+    driverName: 'Mike Johnson'
+  },
+  {
+    id: '6',
+    customerName: 'Watertown Supply',
+    address: '888 Industrial Park',
+    city: 'Watertown',
+    province: 'NY',
+    containerSize: '20',
+    deliveryType: 'rental',
+    scheduledDate: '2024-01-17',
+    scheduledTime: '15:00',
+    status: 'scheduled',
+    driverId: 'driver2',
+    driverName: 'Sarah Chen'
   }
 ];
 
@@ -78,10 +110,12 @@ export default function HomeScreen() {
   const [deliveries, setDeliveries] = useState<Delivery[]>(mockDeliveries);
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
   const [showAddDeliveryModal, setShowAddDeliveryModal] = useState(false);
+  const [filterMyDeliveries, setFilterMyDeliveries] = useState(false);
 
   useEffect(() => {
     console.log('HomeScreen mounted');
     console.log('Deliveries loaded:', deliveries.length);
+    console.log('Current driver:', CURRENT_DRIVER_NAME, '(ID:', CURRENT_DRIVER_ID + ')');
   }, []);
 
   const updateDeliveryStatus = (deliveryId: string, newStatus: Delivery['status']) => {
@@ -117,16 +151,40 @@ export default function HomeScreen() {
     setSelectedDelivery(delivery);
   };
 
+  const toggleFilter = () => {
+    const newFilterState = !filterMyDeliveries;
+    setFilterMyDeliveries(newFilterState);
+    console.log('Filter toggled:', newFilterState ? 'Showing only my deliveries' : 'Showing all deliveries');
+    
+    Alert.alert(
+      'Filter ' + (newFilterState ? 'Enabled' : 'Disabled'),
+      newFilterState 
+        ? `Now showing only deliveries assigned to ${CURRENT_DRIVER_NAME}`
+        : 'Now showing all deliveries'
+    );
+  };
+
   const renderHeaderRight = () => (
-    <Pressable
-      onPress={() => {
-        console.log('Add delivery button pressed');
-        setShowAddDeliveryModal(true);
-      }}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol name="plus" color={colors.primary} />
-    </Pressable>
+    <View style={commonStyles.row}>
+      <Pressable
+        onPress={toggleFilter}
+        style={[styles.headerButtonContainer, filterMyDeliveries && styles.filterActiveButton]}
+      >
+        <IconSymbol 
+          name={filterMyDeliveries ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle"} 
+          color={filterMyDeliveries ? colors.secondary : colors.primary} 
+        />
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          console.log('Add delivery button pressed');
+          setShowAddDeliveryModal(true);
+        }}
+        style={styles.headerButtonContainer}
+      >
+        <IconSymbol name="plus" color={colors.primary} />
+      </Pressable>
+    </View>
   );
 
   const renderHeaderLeft = () => (
@@ -141,13 +199,21 @@ export default function HomeScreen() {
     </Pressable>
   );
 
-  // Filter deliveries for today and upcoming
-  const todayDeliveries = deliveries.filter(d => d.scheduledDate === '2024-01-15');
-  const upcomingDeliveries = deliveries.filter(d => d.scheduledDate > '2024-01-15');
+  // Apply filter if enabled
+  const filteredDeliveries = filterMyDeliveries 
+    ? deliveries.filter(d => d.driverId === CURRENT_DRIVER_ID)
+    : deliveries;
 
-  // Count sales vs rental
-  const salesCount = deliveries.filter(d => d.deliveryType === 'sales').length;
-  const rentalCount = deliveries.filter(d => d.deliveryType === 'rental').length;
+  console.log('Filter active:', filterMyDeliveries);
+  console.log('Total deliveries:', deliveries.length, 'Filtered deliveries:', filteredDeliveries.length);
+
+  // Filter deliveries for today and upcoming
+  const todayDeliveries = filteredDeliveries.filter(d => d.scheduledDate === '2024-01-15');
+  const upcomingDeliveries = filteredDeliveries.filter(d => d.scheduledDate > '2024-01-15');
+
+  // Count sales vs rental (from filtered deliveries)
+  const salesCount = filteredDeliveries.filter(d => d.deliveryType === 'sales').length;
+  const rentalCount = filteredDeliveries.filter(d => d.deliveryType === 'rental').length;
 
   console.log('Rendering HomeScreen - Today:', todayDeliveries.length, 'Upcoming:', upcomingDeliveries.length);
 
@@ -179,9 +245,26 @@ export default function HomeScreen() {
             </Text>
           </View>
 
+          {/* Filter Status Banner */}
+          {filterMyDeliveries && (
+            <View style={styles.filterBanner}>
+              <View style={commonStyles.row}>
+                <IconSymbol name="person.circle.fill" color={colors.secondary} size={20} />
+                <Text style={styles.filterBannerText}>
+                  Showing only your deliveries ({CURRENT_DRIVER_NAME})
+                </Text>
+              </View>
+              <Pressable onPress={toggleFilter} style={styles.clearFilterButton}>
+                <Text style={styles.clearFilterText}>Show All</Text>
+              </Pressable>
+            </View>
+          )}
+
           {/* Header Info */}
           <View style={styles.headerInfo}>
-            <Text style={commonStyles.title}>Today&apos;s Deliveries</Text>
+            <Text style={commonStyles.title}>
+              {filterMyDeliveries ? 'My Deliveries' : "Today's Deliveries"}
+            </Text>
             <Text style={commonStyles.textSecondary}>
               {todayDeliveries.length} deliveries scheduled for January 15, 2024
             </Text>
@@ -198,9 +281,16 @@ export default function HomeScreen() {
             ))
           ) : (
             <View style={[commonStyles.card, commonStyles.centerContent, { padding: 40 }]}>
-              <IconSymbol name="checkmark.circle" color={colors.secondary} size={48} />
+              <IconSymbol 
+                name={filterMyDeliveries ? "tray" : "checkmark.circle"} 
+                color={colors.secondary} 
+                size={48} 
+              />
               <Text style={[commonStyles.text, { marginTop: 16, textAlign: 'center' }]}>
-                No deliveries scheduled for today
+                {filterMyDeliveries 
+                  ? 'You have no deliveries scheduled for today'
+                  : 'No deliveries scheduled for today'
+                }
               </Text>
             </View>
           )}
@@ -224,11 +314,11 @@ export default function HomeScreen() {
           {/* Quick Stats */}
           <View style={[commonStyles.card, styles.statsCard]}>
             <Text style={[commonStyles.subtitle, { marginBottom: 16 }]}>
-              Delivery Statistics
+              {filterMyDeliveries ? 'My Statistics' : 'Delivery Statistics'}
             </Text>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{deliveries.length}</Text>
+                <Text style={styles.statNumber}>{filteredDeliveries.length}</Text>
                 <Text style={commonStyles.textSecondary}>Total</Text>
               </View>
               <View style={styles.statItem}>
@@ -245,7 +335,7 @@ export default function HomeScreen() {
               </View>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, { color: colors.secondary }]}>
-                  {deliveries.filter(d => d.status === 'delivered').length}
+                  {filteredDeliveries.filter(d => d.status === 'delivered').length}
                 </Text>
                 <Text style={commonStyles.textSecondary}>Delivered</Text>
               </View>
@@ -264,6 +354,21 @@ export default function HomeScreen() {
               Our drivers handle both sales and rental deliveries. Each delivery is clearly marked with its type to ensure proper handling and documentation.
             </Text>
           </View>
+
+          {/* Filter Info Card */}
+          {!filterMyDeliveries && (
+            <View style={[commonStyles.card, styles.filterInfoCard]}>
+              <View style={[commonStyles.row, { marginBottom: 12 }]}>
+                <IconSymbol name="line.3.horizontal.decrease.circle" color={colors.accent} size={24} />
+                <Text style={[commonStyles.text, { fontWeight: '600', marginLeft: 8 }]}>
+                  Driver Filter Available
+                </Text>
+              </View>
+              <Text style={commonStyles.textSecondary}>
+                Tap the filter icon in the header to view only your assigned deliveries. This helps you focus on your schedule without distractions.
+              </Text>
+            </View>
+          )}
 
           {/* Maps Notice */}
           <View style={[commonStyles.card, styles.noticeCard]}>
@@ -327,6 +432,40 @@ const styles = StyleSheet.create({
   },
   headerButtonContainer: {
     padding: 6,
+    marginLeft: 8,
+  },
+  filterActiveButton: {
+    backgroundColor: colors.secondary + '20',
+    borderRadius: 8,
+  },
+  filterBanner: {
+    backgroundColor: colors.secondary + '15',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: colors.secondary,
+  },
+  filterBannerText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    marginLeft: 8,
+    flex: 1,
+  },
+  clearFilterButton: {
+    backgroundColor: colors.secondary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  clearFilterText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
   },
   noticeCard: {
     flexDirection: 'row',
@@ -340,6 +479,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#e8f5ff',
     borderLeftWidth: 4,
     borderLeftColor: colors.primary,
+    marginTop: 20,
+  },
+  filterInfoCard: {
+    backgroundColor: '#f0f9ff',
+    borderLeftWidth: 4,
+    borderLeftColor: colors.accent,
     marginTop: 20,
   },
   statsCard: {
