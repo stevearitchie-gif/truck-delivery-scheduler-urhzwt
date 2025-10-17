@@ -10,9 +10,9 @@ interface SpacesStorageLogoProps {
 
 export default function SpacesStorageLogo({ size = 'medium', style }: SpacesStorageLogoProps) {
   const logoSizes = {
-    small: { width: 80, height: 32 },
-    medium: { width: 120, height: 48 },
-    large: { width: 160, height: 64 }
+    small: { width: 120, height: 48 },
+    medium: { width: 180, height: 72 },
+    large: { width: 240, height: 96 }
   };
 
   const currentSize = logoSizes[size];
@@ -20,10 +20,9 @@ export default function SpacesStorageLogo({ size = 'medium', style }: SpacesStor
   return (
     <View style={[styles.container, style]}>
       <Image
-        source="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&h=160&fit=crop&crop=center"
+        source={require('@/assets/images/47233204-4362-4748-9ea0-f457d65a9584.png')}
         style={[styles.logo, currentSize]}
         contentFit="contain"
-        placeholder="L6PZfSi_.AyE_3t7t7R**0o#DgR4"
         transition={300}
         alt="Spaces Storage Group Logo"
       />
@@ -37,6 +36,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    borderRadius: 8,
+    // No border radius needed for the logo
   },
 });
